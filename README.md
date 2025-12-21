@@ -55,9 +55,19 @@ The focus of this assignment is on log analysis and incident reconstruction rath
  
 
 ## References
+
 The data set: https://github.com/splunk/botsv3?tab=readme-ov-file
 
 Basta, A. et al. (2024) Open-Source Security Operations Center (SOC): A Complete Guide to Establishing, Managing, and Maintaining a Modern SOC,  IEEE Xplore. Newark, New Jersey: Wiley. Available at: https://ieeexplore-ieee-org.plymouth.idm.oclc.org/ (Accessed: 2025). (from primo, will split up by chapters used: introduction to soc analysis, soc metrics and performance measurement)
 
 Nathans, D. (2015) Designing and building security operations center, EBook Central. Syngress. Available at: https://ebookcentral.proquest.com/ (Accessed: 2025). (from primo)
 
+Abd Majid, M. and Zainol Ariffin, K.A. (2021) 'Model for successful development and implementation of Cyber Security Operations Centre (SOC)', PLOS ONE, 16(11). doi:10.1371/journal.pone.0260157. (from primo)
+
+Forsberg, J. and Frantti, T. (2023) 'Technical performance metrics of a security operations center', Computers &amp; Security, 135, p. 103529. doi:10.1016/j.cose.2023.103529. (from primo)
+
+Chamkar, S.A., Maleh, Y. and Gherabi, N. (2024) 'Security Operations Centers: Use case best practices, coverage, and gap analysis based on mitre adversarial tactics, techniques, and common knowledge', Journal of Cybersecurity and Privacy, 4(4), pp. 777-793. doi:10.3390/jcp4040036. (from primo)
+
+Miloslavskaya, N. (2016) 'Security Operations Centers for Information Security Incident Management', 2016 IEEE 4th International Conference on Future Internet of Things and Cloud (FiCloud), pp. 131-136. doi:10.1109/ficloud.2016.26. (from primo)
+
+Bejtlich, R. (2013) The practice of network security monitoring: Understanding incident detection and response, EBook Central. No Starch Press, Incorporated. Available at: https://ebookcentral.proquest.com/ (Accessed: 2025). (from primo)
