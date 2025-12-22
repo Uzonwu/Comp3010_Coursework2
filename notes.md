@@ -25,3 +25,23 @@ sudo ./splunk stop
 - I reviewed the SOC tiered model, of which there are 3, that is monitoring and triage, investigation and correlation and threat hunting and detection engineering
 - I've drafted a reflection on incident handling lifecycle (which is detection, analysis, containment, eradication, recovery and lessons learned)
 - At this point I haven't done much that is technical in Splunk, just setting up a frame for guided answers and stuff I'll find during the SOC investigation
+
+## third stage - IAM activity analysis (Q1, Q2)
+
+### Q1 - identifying IAM users
+
+- Here I used CloudTrail logs to find out which IAM users accessed AWS services
+- I first verified the source type with: ```sourcetype=aws:cloudtrail```
+- I looked through to find which IAM usernames appear under userIdentity.userName with: ```sourcetype=aws:cloudtrail | stats count by userIdentity.userName```
+- The listed users were bstoll, btun, splunk_access, and web_admin
+- I also noted difference between likely service accounts and named user accounts
+- Screenshots saved under ss/01
+
+### Q2 - identifying IAM users without MFA
+
+- Still on the CloudTrail sourceType, I excluded console logins with: ```eventName!=ConsoleLogin``` and then added a keyword search for ```*mfa*```
+- Altimately, since I am looking for a field similar to `userIdentity.sessionContext.attributes.mfaAuthenticated` according to the CloudTrail userIdentity element (AWS documentation), I tailored the search to directly find it by querying: ```sourcetype=aws:cloudtrail userIdentity.sessionContext.attributes.mfaAuthenticated="false" | stats count by userIdentity.userName | sort -count```
+- I found that all four users accessed AWS services without MFA
+- I flagged web_admin and bstoll as higher risk due to volume and likely privileges (seen from the count)
+- Important note: lack of MFA is a major contributing weakness
+- Screenshots saved under ss/01
