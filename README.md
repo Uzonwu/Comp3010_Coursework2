@@ -81,6 +81,43 @@ This investigation demonstrates the value of Splunk as a centralised SIEM platfo
 
 Additionally, the investigation reinforces that effective SOC operations depend not only on tooling but also on skilled analysts capable of interpreting complex data within an organisational context. In a real-world SOC, further improvements could be achieved through increased automation, the application of machine learning to reduce false positives, and the integration of frameworks such as MITRE ATT&CK to systematically assess and enhance detection coverage.
 
+## Investigation and Analysis
+
+### Q1
+To find out which IAM users accessed AWS services within the environment, I analysed AWS CloudTrail logs using Splunk. The following search was used to aggregate API activity by IAM username:
+
+```
+index=* sourcetype=aws:cloudtrail | stats count by userIdentity.userName
+```
+
+The results show that the IAM users `bstoll`, `btun`, `splunk_access`, and  `web_admin` performed AWS API actions during the observed period. The presence of both service-style accounts (e.g. splunk_access) and named user accounts suggests a mix of automated access and direct administrative or user-driven interactions.
+
+From a SOC perspective, accounts such as web_admin warrant a closer look due to their likely elevated privileges, while named user accounts should be reviewed for adherence to authentication and access control policies. This initial identification step establishes a baseline for further analysis, including the assessment of multi-factor authentication usage and potentially risky actions performed by these users.
+
+### Q2
+To find which IAM users accessed AWS services without multi-factor authentication (MFA), I analysed AWS CloudTrail logs using Splunk. MFA usage is recorded within the CloudTrail field `userIdentity.sessionContext.attributes.mfaAuthenticated`. The following search was used to identify API activity where MFA was not enabled:
+
+```
+index=* sourcetype=aws:cloudtrail userIdentity.sessionContext.attributes mfaAuthenticated="false" | stats count by userIdentity.userName | sort -count
+```
+
+The results show that the IAM users web_admin, bstoll, btun, and splunk_access accessed AWS services without MFA enabled. I noted that web_admin and bstoll generated a high volume of API activity without MFA, representing a significant security risk due to the increased likelihood of credential compromise. While splunk_access may represent a service or integration account, named user accounts operating without MFA would be considered high-severity findings in a production environment.
+
+From a SOC perspective, API activity performed without MFA significantly increases the attack surface and should trigger immediate investigation, particularly for accounts with administrative privileges. In a real-world SOC, automated alerts would be configured to monitor the userIdentity.sessionContext.attributes.mfaAuthenticated field and escalate any high-risk activity to Tier 2 analysts for further analysis and containment.
+
+### Q3
+
+### Q4
+
+### Q5
+
+### Q6
+
+### Q7
+
+### Q8
+
+
 
 ## References
 
