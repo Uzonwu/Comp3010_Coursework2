@@ -106,6 +106,34 @@ The results show that the IAM users web_admin, bstoll, btun, and splunk_access a
 From a SOC perspective, API activity performed without MFA significantly increases the attack surface and should trigger immediate investigation, particularly for accounts with administrative privileges. In a real-world SOC, automated alerts would be configured to monitor the userIdentity.sessionContext.attributes.mfaAuthenticated field and escalate any high-risk activity to Tier 2 analysts for further analysis and containment.
 
 ### Q3
+To identify the processor used on the web servers, hardware-related logs were analysed using the hardware sourcetype in Splunk. The following searchs were used to extract CPU information for hosts identified as web servers:
+
+First I verified that data exists:
+
+```
+index=* sourcetype=hardware | head 5
+```
+Which returned values confirming it. Then I ran the next search to identify which hosts were web servers:
+
+```
+index=* sourcetype=hardware | stats count by host
+```
+
+Which returned:
+
+gacrux.i-06fea586f3d3c8ce8
+
+gacrux.i-09cbc261e84259b54
+
+gacrux.i-0cc93bade2b3cba63
+
+So taking the first in the list, I extracted its processor information, via viewing event
+
+```
+index=* sourcetype=hardware host=gacrux.i-06fea586f3d3c8ce8 | table host cpu
+```
+
+Viewing the events of the returned host, I was able to see the CPU_TYPE.The results indicate that the web servers are running on processors identified as Intel(R) Xeon(R) CPU `E5-2676` v3 @ 2.40GHz. From a SOC perspective, visibility into hardware characteristics supports asset inventory management and can assist in identifying performance bottlenecks or anomalous behaviour during incident response.
 
 ### Q4
 
