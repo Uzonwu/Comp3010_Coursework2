@@ -45,3 +45,13 @@ sudo ./splunk stop
 - I flagged web_admin and bstoll as higher risk due to volume and likely privileges (seen from the count)
 - Important note: lack of MFA is a major contributing weakness
 - Screenshots saved under ss/01
+
+## fourth stage - infrastructure awareness (Q3)
+- I've switched focus away from AWS to underlying infrastructure
+- First I verified that hardware telemetry existed with: ```sourcetype=hardware | head 5```
+- I then identified web servers by host count with: ```sourcetype=hardware | stats count by host```
+- The web servers listed are gacrux.i-06fea586f3d3c8ce8, gacrux.i-09cbc261e84259b54, gacrux.i-0cc93bade2b3cba63
+- Taking the first in the list, I pulled CPU info with the query: ```sourcetype=hardware host=gacrux.i-06fea586f3d3c8ce8 | table host cpu```
+- I confirmed the cpu type is Intel Xeon E5-2676 v3 CPUs
+- This stage is mostly about asset visibility and baseline knowledge
+- Screenshots saved under ss/02
