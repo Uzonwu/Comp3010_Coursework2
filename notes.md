@@ -55,3 +55,13 @@ sudo ./splunk stop
 - I confirmed the cpu type is Intel Xeon E5-2676 v3 CPUs
 - This stage is mostly about asset visibility and baseline knowledge
 - Screenshots saved under ss/02
+
+## fifth stage - S3 misconfiguration investigation (Q4, Q5, Q6)
+- I noticed that the analysis is now becoming more incident focused from here
+- I started by looking at S3-related API calls with: ```sourcetype=aws:cloudtrail eventSource=s3.amazonaws.com | stats count by eventName | sort -count```
+- I identified PutBucketAcl as the key high-risk action with count 2
+- I then narrowed down to the exact events, insecting IAM username, finding out what bucket were made public with requestParameters, alltogether in the query of: ```sourcetype=aws:cloudtrail eventName="PutBucketAcl" | table _time eventID userIdentity.userName requestParameters.bucketName | sort _time```
+- And found username: bstoll, bucket: frothlywebcode and event ID: ab45689d-69cd-41e7-8705-5350402cf7ac
+- I noted that the quiz expected the eventID, but the report needed the API action, user and resource
+- This part has shown me the root cause of the incident
+- Screenshots saved under ss/03
