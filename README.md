@@ -135,11 +135,25 @@ index=* sourcetype=hardware host=gacrux.i-06fea586f3d3c8ce8 | table host cpu
 
 Viewing the events of the returned host, I was able to see the CPU_TYPE.The results indicate that the web servers are running on processors identified as Intel(R) Xeon(R) CPU `E5-2676` v3 @ 2.40GHz. From a SOC perspective, visibility into hardware characteristics supports asset inventory management and can assist in identifying performance bottlenecks or anomalous behaviour during incident response.
 
-### Q4
+### Q4, Q5, Q6
 
-### Q5
+To identify how public access was enabled for an S3 bucket, AWS CloudTrail logs were analysed for S3-related API activity. The following search was used to identify high-risk S3 actions:
 
-### Q6
+```
+index=* sourcetype=aws:cloudtrail eventSource=s3.amazonaws.com | stats count by eventName | sort -count
+```
+
+Among the returned API calls, the PutBucketAcl action was identified as a high-risk operation capable of modifying bucket permissions and enabling public access. Further analysis was conducted to determine the context of this action:
+
+```
+index=* sourcetype=aws:cloudtrail eventName="PutBucketAcl" | table _time eventID userIdentity.userName requestParameters.bucketName | sort _time
+```
+
+The results show that the IAM user bstoll executed the PutBucketAcl API call against the S3 bucket named frothlywebcode. This action represents the point at which the bucket's access controls were modified, potentially enabling public access to its contents.
+
+Note: The S3 bucket misconfiguration was caused by a `PutBucketAcl` API call executed by the IAM user `bstoll` against the `frothlywebcode` bucket. This action was identified in AWS CloudTrail logs (eventID: `ab45689d-69cd-41e7-8705-5350402cf7ac`) and represents the point at which bucket permissions were modified.
+
+From a SOC perspective, unauthorised or inappropriate use of the PutBucketAcl API call is considered a high-severity security finding. In a production environment, such activity would typically trigger immediate alerts and prompt further investigation to assess data exposure and potential misuse.
 
 ### Q7
 
