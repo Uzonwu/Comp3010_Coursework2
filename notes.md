@@ -65,3 +65,12 @@ sudo ./splunk stop
 - I noted that the quiz expected the eventID, but the report needed the API action, user and resource
 - This part has shown me the root cause of the incident
 - Screenshots saved under ss/03
+
+## sixth stage - confirming data exposure (Q7)
+- This part is basically confirming whether the misconfiguration actually led to exposure or not
+- From what I saw, S3 access logs initially didn't return results when filtering by field name
+- So I pivoted to raw search with: ```sourcetype=aws:s3:accesslogs "frothlywebcode"```
+- Scrolled looking for an event with the same bucket name as Q6, Get file and found evidence of this under REST.GET.OBJECT, the object: OPEN_BUCKET_PLEASE_FIX.txt, HTTP 200 response
+- I was able to confirm unauthenticated access, meaning real data exposure occurred
+- This completed the incident timeline being IAM without MFA, S3 ACL change and then public object access
+- Screenshots saved under ss/04
