@@ -136,7 +136,6 @@ index=* sourcetype=hardware host=gacrux.i-06fea586f3d3c8ce8 | table host cpu
 Viewing the events of the returned host, I was able to see the CPU_TYPE.The results indicate that the web servers are running on processors identified as Intel(R) Xeon(R) CPU `E5-2676` v3 @ 2.40GHz. From a SOC perspective, visibility into hardware characteristics supports asset inventory management and can assist in identifying performance bottlenecks or anomalous behaviour during incident response.
 
 ### Q4, Q5, Q6
-
 To identify how public access was enabled for an S3 bucket, AWS CloudTrail logs were analysed for S3-related API activity. The following search was used to identify high-risk S3 actions:
 
 ```
@@ -156,6 +155,15 @@ Note: The S3 bucket misconfiguration was caused by a `PutBucketAcl` API call exe
 From a SOC perspective, unauthorised or inappropriate use of the PutBucketAcl API call is considered a high-severity security finding. In a production environment, such activity would typically trigger immediate alerts and prompt further investigation to assess data exposure and potential misuse.
 
 ### Q7
+Following the identification of the S3 bucket access misconfiguration, S3 access logs were analysed to determine whether any objects within the bucket were accessed publicly. The following search was used to identify object-level access to the affected bucket:
+
+```
+index=* sourcetype=aws:s3:accesslogs "frothlywebcode" | table _time host source sourcetype _raw | head 20
+```
+
+Analysing S3 access logs revealed successful public access to an object named `OPEN_BUCKET_PLEASE_FIX.txt`. The access was performed using the REST.GET.OBJECT operation and returned an HTTP 200 status code, indicating that the object was retrieved successfully.
+
+From a SOC perspective, this confirms that the bucket misconfiguration resulted in real data exposure. In a production environment, unauthenticated access to objects within an S3 bucket would be treated as a high-severity incident, triggering immediate containment actions such as restricting bucket permissions and conducting an impact assessment to determine the extent of data exposure.
 
 ### Q8
 
