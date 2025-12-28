@@ -166,6 +166,24 @@ Analysing S3 access logs revealed successful public access to an object named `O
 From a SOC perspective, this confirms that the bucket misconfiguration resulted in real data exposure. In a production environment, unauthenticated access to objects within an S3 bucket would be treated as a high-severity incident, triggering immediate containment actions such as restricting bucket permissions and conducting an impact assessment to determine the extent of data exposure.
 
 ### Q8
+To identify endpoints running different versions of Windows, host monitoring logs were analysed using the winhostmon sourcetype in Splunk. The following search was used to compare operating system versions across endpoints:
+
+```
+index=* sourcetype=winhostmon | fieldsummary
+```
+
+field	count	distinct_count	is_exact	max	mean	min	numeric_count	stdev	values
+OS	204	2	1	 	 	 	0	 	[{"value":"Microsoft Windows 10 Pro","count":174},{"value":"Microsoft Windows 10 Enterprise","count":30}]
+
+```
+index=* sourcetype=winhostmon | stats count by host OS | sort OS
+```
+
+The analysis revealed that the endpoint `BSTOLL-L` was running Microsoft Windows 10 Enterprise, while all other endpoints were running Microsoft Windows 10 Pro. From a SOC perspective, inconsistent operating system versions can introduce security and management challenges, as differences in licensing, configuration, and patching may affect an organisation's security posture.
+
+Windows hostnames are case-insensitive and are commonly normalised to lowercase in log analysis workflows. Within the BOTS v3 dataset, organisational systems consistently use the froth.ly domain, as observed across multiple infrastructure and service logs.
+
+Based on standard enterprise naming conventions, the fully qualified domain name (FQDN) for this endpoint can therefore be derived as `bstoll-l.froth.ly`, which aligns with the format expected by the guided question.
 
 
 
