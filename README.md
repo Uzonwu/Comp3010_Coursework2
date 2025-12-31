@@ -185,7 +185,15 @@ Windows hostnames are case-insensitive and are commonly normalised to lowercase 
 
 Based on standard enterprise naming conventions, the fully qualified domain name (FQDN) for this endpoint can therefore be derived as `bstoll-l.froth.ly`, which aligns with the format expected by the guided question.
 
+## Conclusion
 
+This investigation applied a SOC-aligned analytical approach to the BOTS v3 dataset in order to identify security risks, misconfigurations, and evidence of data exposure within a simulated enterprise environment. Using Splunk as a centralised SIEM platform, cloud, endpoint, and infrastructure logs were correlated to reconstruct a realistic security incident involving AWS Identity and Access Management weaknesses and S3 bucket misconfiguration.
+
+The analysis demonstrated that multiple IAM users accessed AWS services without multi-factor authentication, increasing the risk of credential compromise. Further investigation identified a high-risk PutBucketAcl API call that resulted in a publicly accessible S3 bucket. Subsequent S3 access logs confirmed unauthenticated access to an object within the bucket, validating that the misconfiguration led to real data exposure rather than a theoretical weakness.
+
+Endpoint and infrastructure analysis further highlighted the importance of asset visibility and baseline consistency, with one endpoint running a different Windows edition compared to the rest of the environment. From a SOC perspective, such inconsistencies can introduce operational and security challenges if not properly monitored.
+
+Overall, this investigation reinforces the importance of continuous monitoring, strong authentication controls, and proactive detection engineering in modern SOC operations. While the BOTS v3 dataset simulates a controlled environment, the investigative techniques and lessons learned are directly transferable to real-world SOC workflows, where early detection and effective incident response are critical to minimising organisational risk.
 
 ## References
 
