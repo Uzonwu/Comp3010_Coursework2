@@ -121,7 +121,7 @@ index=* sourcetype=aws:cloudtrail userIdentity.sessionContext.attributes.mfaAuth
 
 The results show that the IAM users web_admin, bstoll, btun, and splunk_access accessed AWS services without MFA enabled. The high volume of activity by web_admin and bstoll without MFA represents a significant risk, as compromised credentials without MFA materially increase the likelihood of unauthorised access. While splunk_access may represent an integration/service account, named user accounts operating without MFA would typically be treated as high-severity findings in production environments. [4].
 
-![Figure 2](ss/01/17_userIdentity_element)
+![Figure 2](ss/01/17_userIdentity_element.png?raw=true)
 Figure 2: CloudTrail results showing AWS API activity performed without MFA (Q2).
 
 From a SOC perspective, API activity performed without MFA increases the attack surface and should trigger immediate investigation, particularly for privileged accounts. In a real SOC, automated alerts would monitor userIdentity.sessionContext.attributes.mfaAuthenticated and escalate high-risk activity for Tier 2 validation and containment. [11].
@@ -149,7 +149,7 @@ This returned the following web server hosts:
 
 - gacrux.i-0cc93bade2b3cba63
 
-![Figure 3](ss/02/19_web_servers)
+![Figure 3](ss/02/19_web_servers.png?raw=true)
 Figure 3: The web server hosts (Q3 context).
 
 Processor information was then extracted (example shown for one host):
@@ -160,7 +160,7 @@ index=* sourcetype=hardware host=gacrux.i-06fea586f3d3c8ce8 | table host cpu
 
 The results indicate that the web servers are running processors identified as Intel(R) Xeon(R) CPU `E5-2676` v3 @ 2.40GHz. From a SOC perspective, visibility into hardware characteristics supports asset inventory and can assist in incident response (e.g., identifying performance bottlenecks, validating expected infrastructure baselines, and scoping affected systems). [6].
 
-![Figure 4](ss/02/20_cpu_type)
+![Figure 4](ss/02/20_cpu_type.png?raw=true)
 Figure 4: Hardware telemetry showing web server host(s) and CPU information (Q3).
 
 ### Q4, Q5, Q6 - S3 Public Access Misconfiguration (API, User, Bucket)
@@ -173,7 +173,7 @@ index=* sourcetype=aws:cloudtrail eventSource=s3.amazonaws.com | stats count by 
 
 The API call PutBucketAcl was identified as a high-risk operation capable of modifying bucket permissions and enabling public access. [5]. 
 
-![Figure 5](ss/03/22_noting_PutBucketAcl_highrisk)
+![Figure 5](ss/03/22_noting_PutBucketAcl_highrisk.png?raw=true)
 Figure 5: CloudTrail event frequency results showing S3 API calls including PutBucketAcl (Q4 context).
 
 Further analysis was performed to determine the user and bucket associated with this action:
@@ -186,7 +186,7 @@ The results show that the IAM user `bstoll` executed the `PutBucketAcl` API call
 
 Note (for forensic traceability): The change was identified in CloudTrail with eventID: `ab45689d-69cd-41e7-8705-5350402cf7ac`.
 
-![Figure 6](ss/03/24_username_bucket_eventID)
+![Figure 6](ss/03/24_username_bucket_eventID.png?raw=true)
 Figure 6: CloudTrail details showing PutBucketAcl executed by bstoll on frothlywebcode with event metadata (Q4-Q6 evidence).
 
 From a SOC perspective, unauthorised or inappropriate use of PutBucketAcl is a high-severity finding and would typically trigger immediate alerting and rapid investigation to assess exposure and potential misuse. [2].
@@ -201,7 +201,7 @@ index=* sourcetype=aws:s3:accesslogs "frothlywebcode" | table _time host source 
 
 Analysis of the S3 access logs revealed successful unauthenticated access to an object named `OPEN_BUCKET_PLEASE_FIX.txt`. The access used the REST.GET.OBJECT operation and returned HTTP status 200, indicating the object was retrieved successfully.
 
-![Figure 7](ss/04/26_GET_file)
+![Figure 7](ss/04/26_GET_file.png?raw=true)
 Figure 7: S3 access log entry showing REST.GET.OBJECT access to OPEN_BUCKET_PLEASE_FIX.txt with HTTP 200 (Q7).
 
 From a SOC perspective, this confirms the misconfiguration resulted in real data exposure. In a production environment, unauthenticated object access would be treated as a high-severity incident, requiring immediate containment (restrict bucket permissions), impact assessment (identify exposed objects and access scope), and follow-up detection engineering. [12].
@@ -214,7 +214,7 @@ To identify endpoints running different Windows versions, host monitoring logs w
 index=* sourcetype=winhostmon | fieldsummary
 ```
 
-![Figure 8](ss/05/28_finding_OS)
+![Figure 8](ss/05/28_finding_OS.png?raw=true)
 Figure 8: winhostmon field summary showing distinct OS values (Q8 context).
 
 The OS field contained two distinct values:
@@ -231,7 +231,7 @@ index=* sourcetype=winhostmon | stats count by host OS | sort OS
 
 The analysis revealed that the endpoint `BSTOLL-L` was running Microsoft Windows 10 Enterprise, while other endpoints were running Microsoft Windows 10 Pro. From a SOC perspective, inconsistent endpoint baselines can introduce security and management challenges (e.g., policy drift, patching variance, and inconsistent hardening controls). [9].
 
-![Figure 9](ss/05/30_BSTOLL-L)
+![Figure 9](ss/05/30_BSTOLL-L.png?raw=true)
 Figure 9: Endpoint OS comparison showing BSTOLL-L as the Windows 10 Enterprise outlier (Q8 evidence).
 
 Hostname normalisation and FQDN derivation: Windows hostnames are case-insensitive and commonly normalised to lowercase in log analysis workflows. Within the dataset, organisational systems consistently use the froth.ly domain (e.g., splunk.froth.ly), supporting the derivation of the endpoint FQDN as `bstoll-l.froth.ly`.
