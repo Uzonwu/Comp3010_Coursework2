@@ -106,7 +106,7 @@ index=* sourcetype=aws:cloudtrail | stats count by userIdentity.userName | sort 
 
 The results show that the IAM users `splunk_access`, `web_admin`, `bstoll`, and `btun` performed AWS API actions during the observed period. The presence of both service-style accounts (e.g., splunk_access) and named user accounts suggests a mix of automated access and direct administrative or user-driven interactions.
 
-![Figure 1](ss/01/14_finding_IAM_usernames)
+![Figure 1]([ss/01/14_finding_IAM_usernames](https://github.com/Uzonwu/Comp3010_Coursework2/blob/main/ss/01/14_finding_IAM_usernames.png))
 Figure 1: CloudTrail aggregation showing IAM usernames and associated API activity counts (Q1).
 
 From a SOC perspective, accounts such as web_admin warrant closer scrutiny due to their likely elevated privileges, while named user accounts should be reviewed for adherence to authentication and access control policies. This establishes a baseline for subsequent analysis, including MFA usage and identification of high-risk API actions. [2].
