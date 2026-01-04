@@ -1,4 +1,7 @@
-# Comp3010_Coursework2
+# Comp3010 Coursework 2: BOTSv3 Incident Analysis and Presentation
+
+## Video Walkthrough
+[![My walkthrough]()](https://youtu.be/u4zoFOZE00w)
 
 ## Introduction
 
