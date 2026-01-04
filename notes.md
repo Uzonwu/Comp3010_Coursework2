@@ -83,3 +83,12 @@ sudo ./splunk stop
 - I identified that BSTOLL-L as the only endpoint running Windows 10 Enterprise
 - The quiz required FQDN format, which is apparently derived from the hostname and the domain which is froth.ly, hence the answer bstoll-l.froth.ly. (i didnt know this and i'm not sure why the quiz is asking for this format yet*find out)
 - Screenshots saved under ss/05
+
+## conclusion
+- I have written the conclusion tying together IAM weaknesses, cloud misconfiguration, the confirmed exposure, and endpoint inconsistency
+- I have structured my references and appendix (mostly ordering my references and rewritting in harvard style)
+- I have done the 7-minute video walkthrough, following the incident timeline, demonstrating key queries and explaining SOC relevance.
+- done final checks:
+    - screenshots referenced and captioned
+    - SPL queries formatted consistently
+    - README done
