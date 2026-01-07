@@ -51,6 +51,45 @@ Incident response follows a structured lifecycle that includes preparation, dete
 
 The lessons learned phase is particularly important, as it informs improvements to detection logic and preventative controls, such as enforcing MFA and monitoring high-risk cloud actions [4].
 
+## Installation and Data Preparation
+
+Splunk Enterprise was installed locally and configured as a standalone SIEM instance to simulate a simplified SOC environment. The Boss of the SOC version 3 (BOTS v3) dataset was downloaded from the official Splunk repository and prepared for ingestion.
+
+![Figure 1](ss/00/03_dataset_download.png?raw=true)
+Figure 1: BOTS v3 dataset successfully downloaded prior to ingestion.
+
+Prior to ingestion, dataset integrity was verified using MD5 hash comparison to ensure the files had not been corrupted or altered during download. This step is critical in SOC contexts to maintain evidential integrity and confidence in subsequent analysis.
+
+![Figure 2](ss/00/04_md5_hash_check.png?raw=true)
+Figure 2: MD5 hash verification confirming dataset integrity before ingestion.
+
+The dataset was ingested into Splunk using the Apps framework, after which successful loading was verified by confirming event counts and indexed data availability. Multiple sourcetypes were validated to ensure coverage across cloud, endpoint, and infrastructure telemetry, including:
+aws:cloudtrail
+aws:s3:accesslogs
+winhostmon
+hardware
+
+![Figure 3](ss/00/06_dataset_ingestion.png?raw=true)
+Figure 3: Dataset ingestion process initiated within Splunk.
+
+![Figure 4](ss/00/07_dataset_loading_in_splunk.png?raw=true)
+Figure 4: Dataset loading confirmation within the Splunk interface.
+
+Event presence and sourcetype correctness were confirmed through targeted searches, ensuring that the dataset was fully operational prior to investigation. From a SOC perspective, validating data ingestion and sourcetype accuracy is essential, as incomplete or misclassified data can lead to missed detections, false conclusions, or ineffective incident response.
+
+![Figure 5](ss/00/08_confirming_events.png?raw=true)
+Figure 5: Verification of indexed events following ingestion.
+
+![Figure 6](ss/00/09_confirming_sourceTypes(cloudtrail).png?raw=true)
+Figure 6: Confirmation of aws:cloudtrail sourcetype availability.
+
+![Figure 7](ss/00/10_confirming_sourceTypes(s3accesslogs).png?raw=true)
+Figure 7: Confirmation of aws:s3:accesslogs sourcetype availability.
+
+![Figure 8](ss/00/11_confirming_sourceTypes(winhostmon).png?raw=true)
+Figure 8: Confirmation of Windows (winhostmon) and hardware sourcetypes.
+
+
 ## Investigation and Analysis
 
 ### Q1 - IAM Users Accessing AWS Services
@@ -63,8 +102,8 @@ index=* sourcetype=aws:cloudtrail | stats count by userIdentity.userName | sort 
 
 The results show that the users `splunk_access`, `web_admin`, `bstoll`, and `btun` performed AWS API actions. The presence of both service-style and named user accounts indicates a mix of automated and user-driven activity, establishing a baseline for further authentication and risk analysis [2].
 
-![Figure 1](ss/01/14_finding_IAM_usernames.png?raw=true)
-Figure 1: CloudTrail aggregation showing IAM usernames and associated API activity counts (Q1).
+![Figure 9](ss/01/14_finding_IAM_usernames.png?raw=true)
+Figure 9: CloudTrail aggregation showing IAM usernames and associated API activity counts (Q1).
 
 ### Q2 - IAM Users Accessing AWS Services Without MFA
 
@@ -76,8 +115,8 @@ index=* sourcetype=aws:cloudtrail userIdentity.sessionContext.attributes.mfaAuth
 
 The results indicate that web_admin, bstoll, btun, and splunk_access accessed AWS services without MFA enabled. High volumes of unauthenticated activity by web_admin and bstoll represent significant risk, as compromised credentials without MFA increase the likelihood of unauthorised access [4].
 
-![Figure 2](ss/01/17_userIdentity_element.png?raw=true)
-Figure 2: CloudTrail results showing AWS API activity performed without MFA (Q2).
+![Figure 10](ss/01/17_userIdentity_element.png?raw=true)
+Figure 10: CloudTrail results showing AWS API activity performed without MFA (Q2).
 
 ### Q3 - Web Servers Processor Number
 
@@ -100,15 +139,15 @@ This returned the following web servers:
 
 - gacrux.i-0cc93bade2b3cba63
 
-![Figure 3](ss/02/19_web_servers.png?raw=true)
-Figure 3: The web server hosts (Q3 context).
+![Figure 11](ss/02/19_web_servers.png?raw=true)
+Figure 11: The web server hosts (Q3 context).
 
 Processor information was extracted via viewing event.
 
 This shows that the web servers run Intel(R) Xeon(R) CPU `E5-2676` v3 @ 2.40GHz processors. Hardware visibility supports asset inventory and incident scoping during investigations [6].
 
-![Figure 4](ss/02/20_cpu_type.png?raw=true)
-Figure 4: Hardware telemetry showing web server host(s) and CPU information (Q3).
+![Figure 12](ss/02/20_cpu_type.png?raw=true)
+Figure 12: Hardware telemetry showing web server host(s) and CPU information (Q3).
 
 ### Q4, Q5, Q6 - S3 Public Access Misconfiguration (API, User, Bucket)
 
@@ -120,8 +159,8 @@ index=* sourcetype=aws:cloudtrail eventSource=s3.amazonaws.com | stats count by 
 
 The PutBucketAcl API call was identified as a high-risk operation capable of enabling public access [5]. 
 
-![Figure 5](ss/03/22_noting_PutBucketAcl_highrisk.png?raw=true)
-Figure 5: CloudTrail event frequency results showing S3 API calls including PutBucketAcl (Q4 context).
+![Figure 13](ss/03/22_noting_PutBucketAcl_highrisk.png?raw=true)
+Figure 13: CloudTrail event frequency results showing S3 API calls including PutBucketAcl (Q4 context).
 
 Further analysis showed:
 
@@ -131,8 +170,8 @@ index=* sourcetype=aws:cloudtrail eventName="PutBucketAcl" | table _time eventID
 
 The IAM user `bstoll` executed `PutBucketAcl` against the `frothlywebcode` bucket (eventID: `ab45689d-69cd-41e7-8705-5350402cf7ac`). This represents the point at which bucket permissions were modified.
 
-![Figure 6](ss/03/24_username_bucket_eventID.png?raw=true)
-Figure 6: CloudTrail details showing PutBucketAcl executed by bstoll on frothlywebcode with event metadata (Q4-Q6 evidence).
+![Figure 14](ss/03/24_username_bucket_eventID.png?raw=true)
+Figure 14: CloudTrail details showing PutBucketAcl executed by bstoll on frothlywebcode with event metadata (Q4-Q6 evidence).
 
 ### Q7 - Evidence of Public Object Access
 
@@ -144,8 +183,8 @@ index=* sourcetype=aws:s3:accesslogs "frothlywebcode" | table _time host source 
 
 The logs show successful unauthenticated access to `OPEN_BUCKET_PLEASE_FIX.txt` via the REST.GET.OBJECT operation with HTTP status 200, confirming real data exposure [12].
 
-![Figure 7](ss/04/26_GET_file.png?raw=true)
-Figure 7: S3 access log entry showing REST.GET.OBJECT access to OPEN_BUCKET_PLEASE_FIX.txt with HTTP 200 (Q7).
+![Figure 15](ss/04/26_GET_file.png?raw=true)
+Figure 15: S3 access log entry showing REST.GET.OBJECT access to OPEN_BUCKET_PLEASE_FIX.txt with HTTP 200 (Q7).
 
 ### Q8 - Endpoint Running a Different Windows Version
 
@@ -155,8 +194,8 @@ Endpoint operating systems were analysed using winhostmon:
 index=* sourcetype=winhostmon | fieldsummary
 ```
 
-![Figure 8](ss/05/28_finding_OS.png?raw=true)
-Figure 8: winhostmon field summary showing distinct OS values (Q8 context).
+![Figure 16](ss/05/28_finding_OS.png?raw=true)
+Figure 16: winhostmon field summary showing distinct OS values (Q8 context).
 
 Two OS versions were identified: Windows 10 Pro and Windows 10 Enterprise. Comparison by host:
 
@@ -166,8 +205,8 @@ index=* sourcetype=winhostmon | stats count by host OS | sort OS
 
 The endpoint `BSTOLL-L` was identified as running Windows 10 Enterprise, while others ran Windows 10 Pro. Inconsistent baselines can introduce security and management risks [9]. Based on hostname normalisation and organisational domain usage, the FQDN is derived as `bstoll-l.froth.ly`.
 
-![Figure 9](ss/05/30_BSTOLL-L.png?raw=true)
-Figure 9: Endpoint OS comparison showing BSTOLL-L as the Windows 10 Enterprise outlier (Q8 evidence).
+![Figure 17](ss/05/30_BSTOLL-L.png?raw=true)
+Figure 17: Endpoint OS comparison showing BSTOLL-L as the Windows 10 Enterprise outlier (Q8 evidence).
 
 ## Conclusion
 
